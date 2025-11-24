@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="public/favicon-de-dark.png" media="(prefers-color-scheme: dark)"/>
+    <link rel="icon" type="image/png" href="public/favicon-de-light.png" media="(prefers-color-scheme: light)"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .help-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex: none;
+            width: auto;
+        }
+
+        .help-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            height: calc(100vh - 80px);
+            gap: 0;
+        }
+
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            padding: 20px;
+            font-size: 15px;
+        }
+
+        .preview-pane {
+            background: #e9ecef;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 10px 0;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .template-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .template-card.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .template-card h3 {
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .template-card p {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .editor-section {
+            display: none;
+        }
+
+        .editor-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="color"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-item {
+            background: #f8f9fa;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-header h4 {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .icon-btn {
+            background: lightslategray;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .section-item.disabled {
+            opacity: 0.5;
+        }
+
+        .section-item.disabled .section-fields {
+            display: none;
+        }
+
+        .section-fields {
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .preview-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            overflow: auto;
+            height: fit-content;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            border: none;
+            height: 100%;
+            display: block;
+        }
+
+        .action-buttons {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-buttons button {
+            flex: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            padding: 0;
+            flex: none;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-body pre {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #000;
+        }
+
+        .color-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input-group input[type="color"] {
+            width: 50px;
+            height: 35px;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        .color-input-group input[type="text"] {
+            flex: 1;
+        }
+
+        .input-with-emoji {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .input-with-emoji input,
+        .input-with-emoji textarea {
+            flex: 1;
+        }
+
+        .emoji-btn {
+            background: white;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .emoji-btn:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .emoji-picker {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .emoji-picker.show {
+            display: block;
+        }
+
+        .emoji-picker-header {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .emoji-item {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .emoji-item:hover {
+            background: #f0f0f0;
+            transform: scale(1.2);
+        }
+
+        .saved-templates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .saved-template-item {
+            background: #f8f9fa;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .saved-template-item:hover {
+            border-color: #667eea;
+            background: #f0f1ff;
+        }
+
+        .saved-template-item.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .saved-template-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .saved-template-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .saved-template-date {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .delete-template-btn {
+            background: transparent;
+            border: 1px solid currentColor;
+            color: inherit;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.7;
+            margin-left: 8px;
+        }
+
+        .delete-template-btn:hover {
+            opacity: 1;
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .saved-template-item.active .delete-template-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+            color: white;
+        }
+
+        .save-template-btn {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .save-template-btn:hover {
+            background: #218838;
+        }
+
+        .save-template-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .empty-saved-templates {
+            text-align: center;
+            padding: 20px 10px;
+            color: #999;
+            font-size: 14px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📧 Email Template Builder</h1>
+            <p>Create beautiful HTML emails with modular sections</p>
+        </div>
+        <button class="help-btn" onclick="openHelp()">📖 Help</button>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="section-title">Saved Templates</div>
+            <button class="save-template-btn" id="saveTemplateBtn" onclick="promptSaveTemplate()" disabled>💾 Save Current Template</button>
+            <div id="savedTemplatesContainer"></div>
+
+            <div class="section-title">Choose Template</div>
+            <div class="template-grid" id="templateGrid"></div>
+
+            <div class="editor-section" id="editorSection">
+                <div class="section-title">Global Settings</div>
+                <div id="globalSettings"></div>
+
+                <div class="section-title">Email Sections</div>
+                <div id="sectionsContainer"></div>
+
+                <div class="action-buttons">
+                    <button onclick="copyHTML()">Copy HTML</button>
+                    <button class="secondary" onclick="reset()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-pane">
+            <div class="preview-container">
+                <iframe id="preview" class="preview-iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Copied to clipboard!</div>
+
+    <div class="emoji-picker" id="emojiPicker">
+        <div class="emoji-picker-header">Popular Emojis</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+
+    <div class="modal" id="helpModal" onclick="closeHelpIfClickedOutside(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📖 User Guide</h2>
+                <button class="modal-close" onclick="closeHelp()">×</button>
+            </div>
+            <div class="modal-body">
+                <pre id="helpContent">Loading...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Emoji Picker - Popular email-safe emojis
+        const popularEmojis = [
+            // Symbols
+            '✅', '❌', '⚠️', 'ℹ️', '✨', '⭐', '🔥', '💯', '🎯', '⚡', '💡', '🧠', '🛠️', '⚙️', '📅', '📆',
+            // Objects
+            '📧', '📨', '📩', '🎁', '🎉', '🎊', '💼', '📱', '💻', '🖥️', '🔋', '🕹️', '🔍', '🔓', '🔒', '🎪',
+            // More useful
+            '🌟', '💰', '🏆', '🎈', '🔔', '📢', '🚀', '🌈', '☀️', '🌙', '📸', '🎮', '♾️', '🔗', '📈', '📉',
+            // Emotions
+            '😀', '😃', '😄', '😁', '😊', '😍', '🤔', '😎', '🥳', '😇', '😞', '🥱', '😴', '😫',
+            // Gestures
+            '👍', '👏', '🙌', '💪', '👋', '✋', '🤝', '🙏', '✌️', '🤞',
+            // Hearts
+            '❤️', '💙', '💚', '💛', '🧡', '💜', '💗', '💖', '💕', '💓',            
+            // Arrows
+            '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '🔄', '🔃',
+            
+        ];
+
+        let currentEmojiTarget = null;
+
+        function initEmojiPicker() {
+            const emojiGrid = document.getElementById('emojiGrid');
+            emojiGrid.innerHTML = popularEmojis.map(emoji =>
+                `<div class="emoji-item" onclick="insertEmoji('${emoji}')">${emoji}</div>`
+            ).join('');
+
+            // Close picker when clicking outside
+            document.addEventListener('click', function(event) {
+                const picker = document.getElementById('emojiPicker');
+                const isEmojiBtn = event.target.classList.contains('emoji-btn');
+                const isInsidePicker = picker.contains(event.target);
+
+                if (!isEmojiBtn && !isInsidePicker && picker.classList.contains('show')) {
+                    picker.classList.remove('show');
+                }
+            });
+        }
+
+        function showEmojiPicker(event, inputElement) {
+            event.stopPropagation();
+            const picker = document.getElementById('emojiPicker');
+            const button = event.target;
+
+            currentEmojiTarget = inputElement;
+
+            // Position picker near the button
+            const rect = button.getBoundingClientRect();
+            picker.style.top = (rect.bottom + 5) + 'px';
+            picker.style.left = rect.left + 'px';
+
+            // Toggle picker visibility
+            picker.classList.toggle('show');
+        }
+
+        function insertEmoji(emoji) {
+            if (!currentEmojiTarget) return;
+
+            const input = currentEmojiTarget;
+            const isTextarea = input.tagName === 'TEXTAREA';
+
+            // Insert emoji at cursor position or at the end
+            if (input.selectionStart !== undefined) {
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                const text = input.value;
+                input.value = text.substring(0, start) + emoji + text.substring(end);
+                input.selectionStart = input.selectionEnd = start + emoji.length;
+            } else {
+                input.value += emoji;
+            }
+
+            // Trigger change event to update the preview
+            input.dispatchEvent(new Event('change'));
+            input.focus();
+
+            // Close picker
+            document.getElementById('emojiPicker').classList.remove('show');
+        }
+
+        const templates = [
+            {
+                name: "Newsletter",
+                description: "Professional newsletter",
+                globalSettings: {
+                    preheaderText: "Check out our latest updates and news",
+                    brandColor: "#667eea",
+                    backgroundColor: "#f4f4f4",
+                    contentWidth: "600"
+                },
+                sections: [
+                    { type: "header", enabled: true },
+                    { type: "text", enabled: true },
+                    { type: "hero", enabled: true },
+                    { type: "features", enabled: true },                    
+                    { type: "ctatext", enabled: true },
+                    { type: "button", enabled: true },
+                    { type: "footer", enabled: true }
+                ]
+            },
+            {
+                name: "Promo",
+                description: "Product promotion",
+                globalSettings: {
+                    preheaderText: "Limited time offer - Don't miss out!",
+                    brandColor: "#ff6b6b",
+                    backgroundColor: "#f4f4f4",
+                    contentWidth: "600"
+                },
+                sections: [
+                    { type: "header", enabled: true },                    
+                    { type: "text", enabled: true },
+                    { type: "hero", enabled: true },
+                    { type: "ctatext", enabled: true },
+                    { type: "features", enabled: true },
+                    { type: "button", enabled: true },
+                    { type: "divider", enabled: true },
+                    { type: "ctatext", enabled: true },
+                    { type: "button", enabled: true },
+                    { type: "imageText", enabled: true },
+                    { type: "footer", enabled: true }
+                ]
+            },
+            {
+                name: "Event",
+                description: "Event invitation",
+                globalSettings: {
+                    preheaderText: "You're invited! Save the date for our upcoming event",
+                    brandColor: "#4ecdc4",
+                    backgroundColor: "#f4f4f4",
+                    contentWidth: "600"
+                },
+                sections: [
+                    { type: "header", enabled: true },
+                    { type: "text", enabled: true },
+                    { type: "hero", enabled: true },
+                    { type: "divider", enabled: true },
+                    { type: "ctatext", enabled: true },
+                    { type: "features", enabled: true },
+                    { type: "ctatext", enabled: true },
+                    { type: "button", enabled: true },
+                    { type: "footer", enabled: true }
+                ]
+            },
+            {
+                name: "Announcement",
+                description: "Simple announcement",
+                globalSettings: {
+                    preheaderText: "Important announcement - Read what's new",
+                    brandColor: "#764ba2",
+                    backgroundColor: "#f4f4f4",
+                    contentWidth: "600"
+                },
+                sections: [
+                    { type: "header", enabled: true },
+                    { type: "text", enabled: true },
+                    { type: "features", enabled: true },
+                    { type: "ctatext", enabled: true },
+                    { type: "button", enabled: true },
+                    { type: "footer", enabled: true }
+                ]
+            }
+        ];
+
+        const sectionDefinitions = {
+            header: {
+                title: "Header with Logo",
+                fields: {
+                    logoUrl: { label: "Logo URL", type: "url", default: "https://via.placeholder.com/250x250?text=Image" },
+                    logoAlt: { label: "Logo Alt Text", type: "text", default: "Company Logo" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => `
+                    <tr>
+                        <td style="background-color: ${data.backgroundColor}; padding: 30px 10px 10px 10px; text-align: center;">
+                            <img src="${data.logoUrl}" alt="${data.logoAlt}" style="max-width: 200px; height: auto; display: block; margin: 0 auto;" />
+                        </td>
+                    </tr>
+                `
+            },
+            hero: {
+                title: "Hero Image",
+                fields: {
+                    imageUrl: { label: "Image URL", type: "url", default: "https://via.placeholder.com/520x250?text=Image" },
+                    imageAlt: { label: "Image Alt Text", type: "text", default: "Hero Image" },
+                    linkUrl: { label: "Link URL (optional)", type: "url", default: "" }
+                },
+                render: (data, global) => {
+                    const img = `<img src="${data.imageUrl}" alt="${data.imageAlt}" style="max-width: 520px; width: 100%; max-height: 500px; display: block; border-radius: 6px; margin: 0 auto;" />`;
+                    return `
+                        <tr>
+                            <td style="padding: 10px 40px; text-align: center;">
+                                ${data.linkUrl ? `<a href="${data.linkUrl}" style="display: inline-block;">${img}</a>` : img}
+                            </td>
+                        </tr>
+                    `;
+                }
+            },
+            text: {
+                title: "Text Block",
+                fields: {
+                    heading: { label: "Heading (HTML allowed)", type: "text", default: "Welcome to our newsletter!" },
+                    content: { label: "Content (Use HTML tags for bold, italic, and line breaks)", type: "textarea", default: "This is a paragraph of text.<br><br>Use <b>bold</b> and <i>italic</i> for formatting.<br>Line breaks work too!" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => `
+                    <tr>
+                        <td style="background-color: ${data.backgroundColor}; padding: 30px 40px;">
+                            ${data.heading ? `<h2 style="margin: 0 0 15px 0; color: #333333; font-size: 24px; font-family: Arial, sans-serif;">${data.heading}</h2>` : ''}
+                            <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">${data.content}</p>
+                        </td>
+                    </tr>
+                `
+            },
+            ctatext: {
+                title: "Call to Action Block",
+                fields: {
+                    heading: { label: "Heading (HTML allowed)", type: "text", default: "Join Us Today!" },
+                    content: { label: "Content (Use HTML tags for bold, italic, and line breaks)", type: "textarea", default: "This is a paragraph of text.<br><br>Use <b>bold</b> and <i>italic</i> for formatting.<br>Line breaks work too!" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => `
+                    <tr>
+                        <td style="background-color: ${data.backgroundColor}; padding: 30px 40px; text-align: center;">
+                            ${data.heading ? `<h2 style="margin: 0 0 15px 0; color: #333333; font-size: 24px; font-family: Arial, sans-serif;">${data.heading}</h2>` : ''}
+                            <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">${data.content}</p>
+                        </td>
+                    </tr>
+                `
+            },
+            button: {
+                title: "Call-to-Action Button",
+                fields: {
+                    buttonText: { label: "Button Text", type: "text", default: "Click Here" },
+                    buttonUrl: { label: "Button URL", type: "url", default: "https://example.com" },
+                    buttonColor: { label: "Button Color", type: "color", default: "#667eea" },
+                    textColor: { label: "Text Color", type: "color", default: "#ffffff" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => `
+                    <tr>
+                        <td style="background-color: ${data.backgroundColor}; padding: 20px 40px; text-align: center;">
+                            <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="background-color: ${data.buttonColor}; border-radius: 6px; text-align: center;">
+                                        <a href="${data.buttonUrl}" style="background-color: ${data.buttonColor}; border: none; color: ${data.textColor}; padding: 15px 40px; text-decoration: none; display: inline-block; font-size: 16px; font-weight: bold; border-radius: 6px; font-family: Arial, sans-serif;">${data.buttonText}</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                `
+            },
+            divider: {
+                title: "Divider",
+                fields: {
+                    color: { label: "Divider Color", type: "color", default: "#dddddd" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => `
+                    <tr>
+                        <td style="background-color: ${data.backgroundColor}; padding: 20px 40px;">
+                            <hr style="border: none; border-top: 2px solid ${data.color}; margin: 0;" />
+                        </td>
+                    </tr>
+                `
+            },
+            imageText: {
+                title: "Image + Text",
+                fields: {
+                    imageUrl: { label: "Image URL", type: "url", default: "https://via.placeholder.com/250x250?text=Image" },
+                    imageAlt: { label: "Image Alt Text", type: "text", default: "Feature Image" },
+                    heading: { label: "Heading", type: "text", default: "Feature Title" },
+                    content: { label: "Content", type: "textarea", default: "Description of your feature or product goes here." },
+                    imagePosition: { label: "Image Position", type: "select", options: ["left", "right"], default: "left" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => {
+                    const imageCell = `<td style="width: 250px; padding: 10px; vertical-align: top;"><img src="${data.imageUrl}" alt="${data.imageAlt}" style="width: 100%; height: auto; display: block; border-radius: 6px;" /></td>`;
+                    const textCell = `<td style="padding: 10px 20px; vertical-align: top;"><h3 style="margin: 0 0 10px 0; color: #333333; font-size: 20px; font-family: Arial, sans-serif;">${data.heading}</h3><p style="margin: 0; color: #666666; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">${data.content}</p></td>`;
+
+                    return `
+                        <tr>
+                            <td style="background-color: ${data.backgroundColor}; padding: 30px 40px;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        ${data.imagePosition === 'left' ? imageCell + textCell : textCell + imageCell}
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    `;
+                }
+            },
+            features: {
+                title: "Features Grid",
+                fields: {
+                    columns: { label: "Number of Columns", type: "select", options: ["1", "2"], default: "2" },
+                    feature1Enabled: { label: "Show Feature 1", type: "checkbox", default: true },
+                    feature1ImageEnabled: { label: "Show Feature 1 Image", type: "checkbox", default: true },
+                    feature1Image: { label: "Feature 1 Image URL", type: "url", default: "https://via.placeholder.com/100x100?text=Icon+1" },
+                    feature1Heading: { label: "Feature 1 Heading", type: "text", default: "Feature One" },
+                    feature1Text: { label: "Feature 1 Text", type: "textarea", default: "Description of your first feature." },
+                    feature2Enabled: { label: "Show Feature 2", type: "checkbox", default: true },
+                    feature2ImageEnabled: { label: "Show Feature 2 Image", type: "checkbox", default: true },
+                    feature2Image: { label: "Feature 2 Image URL", type: "url", default: "https://via.placeholder.com/100x100?text=Icon+2" },
+                    feature2Heading: { label: "Feature 2 Heading", type: "text", default: "Feature Two" },
+                    feature2Text: { label: "Feature 2 Text", type: "textarea", default: "Description of your second feature." },
+                    feature3Enabled: { label: "Show Feature 3", type: "checkbox", default: true },
+                    feature3ImageEnabled: { label: "Show Feature 3 Image", type: "checkbox", default: true },
+                    feature3Image: { label: "Feature 3 Image URL", type: "url", default: "https://via.placeholder.com/100x100?text=Icon+3" },
+                    feature3Heading: { label: "Feature 3 Heading", type: "text", default: "Feature Three" },
+                    feature3Text: { label: "Feature 3 Text", type: "textarea", default: "Description of your third feature." },
+                    feature4Enabled: { label: "Show Feature 4", type: "checkbox", default: true },
+                    feature4ImageEnabled: { label: "Show Feature 4 Image", type: "checkbox", default: true },
+                    feature4Image: { label: "Feature 4 Image URL", type: "url", default: "https://via.placeholder.com/100x100?text=Icon+4" },
+                    feature4Heading: { label: "Feature 4 Heading", type: "text", default: "Feature Four" },
+                    feature4Text: { label: "Feature 4 Text", type: "textarea", default: "Description of your fourth feature." },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#ffffff" }
+                },
+                render: (data, global) => {
+                    const featureCard = (image, heading, text, showImage, width = '') => `
+                        <td style="padding: 15px; text-align: center; vertical-align: top;${width ? ' width: ' + width + ';' : ''}">
+                            ${showImage ? `<img src="${image}" alt="${heading}" style="width: 120px; height: 90px; display: block; margin: 0 auto 15px auto; border-radius: 8px; object-fit: cover;" />` : ''}
+                            <h3 style="margin: 0 0 10px 0; color: #333333; font-size: 18px; font-family: Arial, sans-serif;">${heading}</h3>
+                            <p style="margin: 0; color: #666666; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif;">${text}</p>
+                        </td>
+                    `;
+
+                    const features = [];
+                    if (data.feature1Enabled) features.push({ image: data.feature1Image, heading: data.feature1Heading, text: data.feature1Text, showImage: data.feature1ImageEnabled });
+                    if (data.feature2Enabled) features.push({ image: data.feature2Image, heading: data.feature2Heading, text: data.feature2Text, showImage: data.feature2ImageEnabled });
+                    if (data.feature3Enabled) features.push({ image: data.feature3Image, heading: data.feature3Heading, text: data.feature3Text, showImage: data.feature3ImageEnabled });
+                    if (data.feature4Enabled) features.push({ image: data.feature4Image, heading: data.feature4Heading, text: data.feature4Text, showImage: data.feature4ImageEnabled });
+
+                    if (features.length === 0) return '';
+
+                    let rows = '';
+                    if (data.columns === "1") {
+                        // 1 column: stack all features vertically
+                        rows = features.map(f => `<tr>${featureCard(f.image, f.heading, f.text, f.showImage)}</tr>`).join('');
+                    } else {
+                        // 2 columns: arrange in rows of 2 with equal widths
+                        for (let i = 0; i < features.length; i += 2) {
+                            const f1 = features[i];
+                            const f2 = features[i + 1];
+                            rows += `<tr>${featureCard(f1.image, f1.heading, f1.text, f1.showImage, '50%')}${f2 ? featureCard(f2.image, f2.heading, f2.text, f2.showImage, '50%') : '<td style="width: 50%;"></td>'}</tr>`;
+                        }
+                    }
+
+                    return `
+                        <tr>
+                            <td style="background-color: ${data.backgroundColor}; padding: 30px 20px;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    ${rows}
+                                </table>
+                            </td>
+                        </tr>
+                    `;
+                }
+            },
+            footer: {
+                title: "Footer",
+                fields: {
+                    companyName: { label: "Company Name", type: "text", default: "Your Company" },
+                    address: { label: "Address", type: "text", default: "Address" },
+                    unsubscribeUrl: { label: "Unsubscribe URL", type: "url", default: "mailto:yourcompany@example.com?subject=Unsubscribe%20Me" },
+                    backgroundColor: { label: "Background Color", type: "color", default: "#f4f4f4" },
+                    textColor: { label: "Text Color", type: "color", default: "#999999" }
+                },
+                render: (data, global) => `
+                    <tr>
+                        <td style="background-color: ${data.backgroundColor}; padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; color: ${data.textColor}; font-size: 14px; font-family: Arial, sans-serif;">${data.companyName}</p>
+                            <p style="margin: 0 0 15px 0; color: ${data.textColor}; font-size: 12px; font-family: Arial, sans-serif;">${data.address}</p>
+                            <a href="${data.unsubscribeUrl}" style="color: ${data.textColor}; font-size: 12px; text-decoration: underline; font-family: Arial, sans-serif;">Unsubscribe</a>
+                        </td>
+                    </tr>
+                `
+            }
+        };
+
+        let currentTemplate = null;
+        let currentSections = [];
+        let globalSettings = {};
+        let currentSavedTemplateId = null;
+
+        function renderTemplateGrid() {
+            const grid = document.getElementById('templateGrid');
+            grid.innerHTML = templates.map((template, index) => `
+                <div class="template-card" onclick="selectTemplate(${index})">
+                    <h3>${template.name}</h3>
+                    <p>${template.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function selectTemplate(index) {
+            currentTemplate = templates[index];
+            globalSettings = { ...currentTemplate.globalSettings };
+            currentSections = currentTemplate.sections.map(s => ({
+                ...s,
+                data: getDefaultData(s.type)
+            }));
+            currentSavedTemplateId = null; // Reset saved template ID when selecting predefined template
+
+            document.querySelectorAll('.template-card').forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+
+            document.getElementById('editorSection').classList.add('active');
+            document.getElementById('saveTemplateBtn').disabled = false; // Enable save button
+            renderGlobalSettings();
+            renderSections();
+            renderSavedTemplates(); // Update saved templates to clear active state
+            updatePreview();
+        }
+
+        function getDefaultData(type) {
+            const def = sectionDefinitions[type];
+            const data = {};
+            for (const [key, field] of Object.entries(def.fields)) {
+                data[key] = field.default;
+            }
+            return data;
+        }
+
+        function renderGlobalSettings() {
+            const container = document.getElementById('globalSettings');
+            container.innerHTML = `
+                <div class="form-group">
+                    <label>Preheader Text (shows in inbox preview)</label>
+                    <input type="text" value="${globalSettings.preheaderText || ''}" onchange="updateGlobalSetting('preheaderText', this.value)" placeholder="Brief preview text..." maxlength="100" />
+                    <div style="font-size: 12px; color: #666; margin-top: 4px;">Max 100 chars. This appears in inbox, not in email body.</div>
+                </div>
+                <div class="form-group">
+                    <label>Brand Color</label>
+                    <div class="color-input-group">
+                        <input type="color" value="${globalSettings.brandColor}" onchange="updateGlobalSetting('brandColor', this.value)" />
+                        <input type="text" value="${globalSettings.brandColor}" onchange="updateGlobalSetting('brandColor', this.value)" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Background Color</label>
+                    <div class="color-input-group">
+                        <input type="color" value="${globalSettings.backgroundColor}" onchange="updateGlobalSetting('backgroundColor', this.value)" />
+                        <input type="text" value="${globalSettings.backgroundColor}" onchange="updateGlobalSetting('backgroundColor', this.value)" />
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateGlobalSetting(key, value) {
+            globalSettings[key] = value;
+            renderGlobalSettings();
+            updatePreview();
+        }
+
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = currentSections.map((section, index) => {
+                const def = sectionDefinitions[section.type];
+                return `
+                    <div class="section-item ${section.enabled ? '' : 'disabled'}" id="section-${index}">
+                        <div class="section-header">
+                            <h4>${def.title}</h4>
+                            <div class="section-controls">
+                                <button class="icon-btn" onclick="moveSection(${index}, -1)" title="Move Up" ${index === 0 ? 'disabled' : ''}>↑</button>
+                                <button class="icon-btn" onclick="moveSection(${index}, 1)" title="Move Down" ${index === currentSections.length - 1 ? 'disabled' : ''}>↓</button>
+                                <button class="icon-btn" onclick="toggleSection(${index})" title="${section.enabled ? 'Disable' : 'Enable'}">${section.enabled ? '👁' : '👁‍🗨'}</button>
+                            </div>
+                        </div>
+                        ${section.enabled ? `<div class="section-fields">${renderSectionFields(section, index, def)}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSectionFields(section, sectionIndex, def) {
+            return Object.entries(def.fields).map(([fieldName, field]) => {
+                let inputHtml = '';
+                const inputId = `input-${sectionIndex}-${fieldName}`;
+
+                // Check if this field should have emoji support (text and textarea only, excluding URLs and certain fields)
+                const shouldHaveEmoji = (field.type === 'text' || field.type === 'textarea') &&
+                                       field.type !== 'url' &&
+                                       !fieldName.toLowerCase().includes('url') &&
+                                       !fieldName.toLowerCase().includes('color');
+
+                if (field.type === 'textarea') {
+                    const textareaInput = `<textarea id="${inputId}" onchange="updateSectionData(${sectionIndex}, '${fieldName}', this.value)">${section.data[fieldName]}</textarea>`;
+                    if (shouldHaveEmoji) {
+                        inputHtml = `
+                            <div class="input-with-emoji">
+                                ${textareaInput}
+                                <button type="button" class="emoji-btn" onclick="showEmojiPicker(event, document.getElementById('${inputId}'))" title="Add emoji">😊</button>
+                            </div>
+                        `;
+                    } else {
+                        inputHtml = textareaInput;
+                    }
+                } else if (field.type === 'color') {
+                    inputHtml = `
+                        <div class="color-input-group">
+                            <input type="color" value="${section.data[fieldName]}" onchange="updateSectionData(${sectionIndex}, '${fieldName}', this.value)" />
+                            <input type="text" value="${section.data[fieldName]}" onchange="updateSectionData(${sectionIndex}, '${fieldName}', this.value)" />
+                        </div>
+                    `;
+                } else if (field.type === 'select') {
+                    inputHtml = `
+                        <select onchange="updateSectionData(${sectionIndex}, '${fieldName}', this.value)">
+                            ${field.options.map(opt => `<option value="${opt}" ${section.data[fieldName] === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                        </select>
+                    `;
+                } else if (field.type === 'checkbox') {
+                    inputHtml = `<input type="checkbox" ${section.data[fieldName] ? 'checked' : ''} onchange="updateSectionData(${sectionIndex}, '${fieldName}', this.checked)" style="width: auto; height: auto;" />`;
+                } else {
+                    const regularInput = `<input id="${inputId}" type="${field.type}" value="${section.data[fieldName]}" onchange="updateSectionData(${sectionIndex}, '${fieldName}', this.value)" />`;
+                    if (shouldHaveEmoji) {
+                        inputHtml = `
+                            <div class="input-with-emoji">
+                                ${regularInput}
+                                <button type="button" class="emoji-btn" onclick="showEmojiPicker(event, document.getElementById('${inputId}'))" title="Add emoji">😊</button>
+                            </div>
+                        `;
+                    } else {
+                        inputHtml = regularInput;
+                    }
+                }
+
+                return `
+                    <div class="form-group">
+                        <label>${field.label}</label>
+                        ${inputHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSectionData(index, field, value) {
+            currentSections[index].data[field] = value;
+            updatePreview();
+        }
+
+        function toggleSection(index) {
+            currentSections[index].enabled = !currentSections[index].enabled;
+            renderSections();
+            updatePreview();
+        }
+
+        function moveSection(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= currentSections.length) return;
+
+            [currentSections[index], currentSections[newIndex]] = [currentSections[newIndex], currentSections[index]];
+            renderSections();
+            updatePreview();
+        }
+
+        function generateHTML() {
+            const sectionsHTML = currentSections
+                .filter(s => s.enabled)
+                .map(s => sectionDefinitions[s.type].render(s.data, globalSettings))
+                .join('');
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <!-- List-Unsubscribe: <mailto:yourcompany@example.com?subject=unsubscribe> -->
+    <!-- List-Unsubscribe-Post: List-Unsubscribe=One-Click -->
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; font-family: Arial, sans-serif;">
+    ${globalSettings.preheaderText ? `<div style="display: none; max-height: 0px; overflow: hidden;">${globalSettings.preheaderText}</div>` : ''}
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center" style="padding: 10px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" style="background-color: ${globalSettings.backgroundColor}; padding: 10px; border-radius: 12px;">
+                    <tr>
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="${globalSettings.contentWidth}" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                ${sectionsHTML}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+        }
+
+        function updatePreview() {
+            const iframe = document.getElementById('preview');
+            const html = generateHTML();
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(html);
+            doc.close();
+
+            // Resize iframe to fit content
+            setTimeout(() => {
+                const height = doc.documentElement.scrollHeight;
+                iframe.style.height = height + 'px';
+            }, 100);
+        }
+
+        function copyHTML() {
+            const html = generateHTML();
+
+            // Copy as both HTML (for pasting into email clients) and plain text (for code editors)
+            const blob = new Blob([html], { type: 'text/html' });
+            const blobPlain = new Blob([html], { type: 'text/plain' });
+
+            const clipboardItem = new ClipboardItem({
+                'text/html': blob,
+                'text/plain': blobPlain
+            });
+
+            navigator.clipboard.write([clipboardItem]).then(() => {
+                showNotification('Email copied! Paste into Gmail or email service.');
+            }).catch(() => {
+                // Fallback to plain text copy if ClipboardItem not supported
+                navigator.clipboard.writeText(html).then(() => {
+                    showNotification('HTML code copied to clipboard!');
+                });
+            });
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        function reset() {
+            currentTemplate = null;
+            currentSections = [];
+            globalSettings = {};
+            currentSavedTemplateId = null;
+            document.getElementById('editorSection').classList.remove('active');
+            document.getElementById('saveTemplateBtn').disabled = true;
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            renderSavedTemplates(); // Update to clear active state from saved templates
+            const iframe = document.getElementById('preview');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write('<body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial;color:#999;">Select a template to get started</body>');
+            doc.close();
+        }
+
+        function openHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.add('show');
+            loadReadme();
+        }
+
+        function closeHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.remove('show');
+        }
+
+        function closeHelpIfClickedOutside(event) {
+            if (event.target.id === 'helpModal') {
+                closeHelp();
+            }
+        }
+
+        function loadReadme() {
+            const helpContent = document.getElementById('helpContent');
+            helpContent.textContent = `EMAIL TEMPLATE BUILDER - USER GUIDE
+=====================================
+
+QUICK START
+-----------
+1. Open index.html in your web browser
+2. Select a template from the grid (Newsletter, Promo, Event, or Announcement)
+3. Customize the content in the left sidebar
+4. Watch the live preview update on the right
+5. Click "Copy HTML" when ready
+6. Paste directly into Gmail compose or your email service (HubSpot, Mailchimp, etc.)
+
+
+TEMPLATE TYPES
+--------------
+• Newsletter - Professional newsletter with hero and multiple sections
+• Promo - Product promotion with feature highlights
+• Event - Event invitation layout
+• Announcement - Clean, simple announcement
+
+
+AVAILABLE SECTIONS
+------------------
+Each template consists of modular sections that you can:
+• Toggle on/off (eye icon)
+• Reorder (up/down arrows)
+• Customize completely
+
+Section Types:
+
+1. HEADER WITH LOGO
+   - Upload your company logo
+   - Set background color
+   - Centered layout
+
+2. HERO IMAGE
+   - Full-width banner image
+   - Optional clickable link
+   - Great for main visuals
+
+3. TEXT BLOCK
+   - Heading + paragraph content
+   - HTML formatting supported: <b>bold</b>, <i>italic</i>, <br> for line breaks
+   - Customizable background
+   - Perfect for body content
+
+4. CALL-TO-ACTION BUTTON
+   - Customizable button text and URL
+   - Choose button and text colors
+   - Email-client compatible design
+
+5. FEATURES GRID
+   - 1 or 2 column layout
+   - Up to 4 features with icons
+   - Toggle individual features on/off
+   - 100x100px square images
+   - Great for product highlights
+
+6. DIVIDER
+   - Visual separator between sections
+   - Customizable color
+
+7. IMAGE + TEXT
+   - Side-by-side layout
+   - Image left or right
+   - Great for feature descriptions
+
+8. FOOTER
+   - Company name and address
+   - Unsubscribe link (required for compliance)
+   - Customizable colors
+
+
+GLOBAL SETTINGS
+---------------
+• Brand Color - Your primary brand color
+• Background Color - Email background (usually light gray)
+• Content Width - Fixed at 600px (email standard)
+
+
+CUSTOMIZATION TIPS
+------------------
+✓ Use high-quality images (host them online first)
+✓ Keep text concise and scannable
+✓ Use your brand colors consistently
+✓ Use HTML tags for formatting: <b>bold</b>, <i>italic</i>, <br> for line breaks
+✓ Test buttons by clicking in the preview
+✓ Always include an unsubscribe link
+
+
+EMAIL COMPATIBILITY
+-------------------
+The generated HTML uses:
+• Table-based layouts (works in all email clients)
+• Inline CSS (no external stylesheets)
+• 600px width (standard for emails)
+• Compatible with: Gmail, Outlook, Apple Mail, Yahoo, etc.
+
+
+HOW TO USE IN EMAIL SERVICES
+-----------------------------
+GMAIL (Direct Paste):
+1. Click "Copy HTML" button
+2. Open Gmail and click Compose
+3. Click in the compose area and paste (Ctrl+V or Cmd+V)
+4. The email should appear formatted and ready to send!
+
+HUBSPOT:
+1. Create new email
+2. Choose "Custom HTML" module
+3. Click "Copy HTML" and paste
+4. Preview and send
+
+MAILCHIMP:
+1. Create campaign
+2. Choose "Code your own" template
+3. Click "Copy HTML" and paste in code editor
+4. Continue to design and send
+
+CONSTANT CONTACT / OTHERS:
+1. Look for "Custom HTML" or "Code Editor" option
+2. Click "Copy HTML" and paste
+3. Preview before sending
+
+NOTE: If pasting into Gmail doesn't work, your browser may not support rich
+clipboard. Use the HTML code with email marketing platforms instead.
+
+
+IMAGE HOSTING
+-------------
+Email clients don't support embedded images. You must:
+1. Upload images to a web server or image hosting service
+2. Use the full URL (https://...) in the image fields
+
+Free image hosting options:
+• Imgur.com
+• ImgBB.com
+• Your own website
+• Your email service's image library
+
+
+TEXT FORMATTING
+---------------
+You can use HTML tags directly in text fields:
+
+• <b>Bold text</b> - Makes text bold
+• <i>Italic text</i> - Makes text italic
+• <u>Underlined text</u> - Underlines text
+• <br> - Line break (new line)
+• <strong>Strong text</strong> - Same as bold
+• <em>Emphasized text</em> - Same as italic
+
+Example:
+Welcome to our <b>amazing</b> newsletter!<br><br>We have <i>exciting</i> news to share.
+
+
+TROUBLESHOOTING
+---------------
+Q: Images not showing in preview?
+A: Make sure you're using full URLs (https://...)
+
+Q: Preview looks different in my email client?
+A: This is normal. Test in your actual email service before sending.
+
+Q: How do I add more than 4 features?
+A: Add another Features Grid section (they can be reordered) and customize it.
+
+Q: How do I format text?
+A: Use HTML tags like <b>bold</b>, <i>italic</i>, and <br> for line breaks directly in text fields.
+
+Q: Can I save my templates?
+A: Copy the HTML and save it to a .html file on your computer for reuse.
+
+Q: The preview has scrollbars?
+A: The preview auto-resizes. Try refreshing the page if issues persist.
+
+
+BEST PRACTICES
+--------------
+1. Keep emails under 600px wide
+2. Use web-safe fonts (Arial, Georgia, etc.)
+3. Test on mobile devices
+4. Include plain text alternative (in your email service)
+5. Follow CAN-SPAM compliance rules
+6. A/B test your emails for best results
+
+
+SUPPORT
+-------
+This is a lightweight, local tool designed for simplicity.
+For issues or feature requests, contact the developer.
+
+Version 1.0
+Last Updated: 2025`;
+        }
+
+        // ========================================
+        // TEMPLATE SAVE/LOAD SYSTEM
+        // ========================================
+
+        function getSavedTemplates() {
+            const saved = localStorage.getItem('emailTemplates');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveSavedTemplates(templates) {
+            localStorage.setItem('emailTemplates', JSON.stringify(templates));
+        }
+
+        function renderSavedTemplates() {
+            const container = document.getElementById('savedTemplatesContainer');
+            const savedTemplates = getSavedTemplates();
+
+            if (savedTemplates.length === 0) {
+                container.innerHTML = '<div class="empty-saved-templates">No saved templates yet.<br>Create one and click Save!</div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="saved-templates-list">' + savedTemplates.map((template, index) => `
+                <div class="saved-template-item ${currentSavedTemplateId === template.id ? 'active' : ''}" onclick="loadSavedTemplate('${template.id}')">
+                    <div class="saved-template-info">
+                        <div class="saved-template-name">${template.name}</div>
+                        <div class="saved-template-date">${new Date(template.savedAt).toLocaleDateString()}</div>
+                    </div>
+                    <button class="delete-template-btn" onclick="event.stopPropagation(); deleteSavedTemplate('${template.id}')">Delete</button>
+                </div>
+            `).join('') + '</div>';
+        }
+
+        function promptSaveTemplate() {
+            if (!currentTemplate && currentSections.length === 0) {
+                alert('Please select or create a template first!');
+                return;
+            }
+
+            const name = prompt('Enter a name for this template:', currentSavedTemplateId ? getSavedTemplates().find(t => t.id === currentSavedTemplateId)?.name : '');
+            if (!name || name.trim() === '') return;
+
+            saveTemplate(name.trim());
+        }
+
+        function saveTemplate(name) {
+            const savedTemplates = getSavedTemplates();
+
+            const templateData = {
+                id: currentSavedTemplateId || 'template_' + Date.now(),
+                name: name,
+                savedAt: new Date().toISOString(),
+                globalSettings: { ...globalSettings },
+                sections: currentSections.map(s => ({ ...s, data: { ...s.data } }))
+            };
+
+            // Update existing or add new
+            const existingIndex = savedTemplates.findIndex(t => t.id === templateData.id);
+            if (existingIndex >= 0) {
+                savedTemplates[existingIndex] = templateData;
+            } else {
+                savedTemplates.push(templateData);
+            }
+
+            saveSavedTemplates(savedTemplates);
+            currentSavedTemplateId = templateData.id;
+            renderSavedTemplates();
+            showNotification('Template saved successfully!');
+        }
+
+        function loadSavedTemplate(id) {
+            const savedTemplates = getSavedTemplates();
+            const template = savedTemplates.find(t => t.id === id);
+
+            if (!template) {
+                alert('Template not found!');
+                return;
+            }
+
+            // Load the template data
+            globalSettings = { ...template.globalSettings };
+            currentSections = template.sections.map(s => ({ ...s, data: { ...s.data } }));
+            currentSavedTemplateId = id;
+            currentTemplate = { name: template.name };
+
+            // Clear active state from predefined templates
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Show editor and update UI
+            document.getElementById('editorSection').classList.add('active');
+            document.getElementById('saveTemplateBtn').disabled = false;
+            renderGlobalSettings();
+            renderSections();
+            renderSavedTemplates();
+            updatePreview();
+
+            showNotification('Template loaded!');
+        }
+
+        function deleteSavedTemplate(id) {
+            if (!confirm('Are you sure you want to delete this template?')) {
+                return;
+            }
+
+            let savedTemplates = getSavedTemplates();
+            savedTemplates = savedTemplates.filter(t => t.id !== id);
+            saveSavedTemplates(savedTemplates);
+
+            if (currentSavedTemplateId === id) {
+                currentSavedTemplateId = null;
+            }
+
+            renderSavedTemplates();
+            showNotification('Template deleted!');
+        }
+
+        // ========================================
+        // END TEMPLATE SAVE/LOAD SYSTEM
+        // ========================================
+
+        renderTemplateGrid();
+        reset();
+        initEmojiPicker();
+        renderSavedTemplates();
+    </script>
+</body>
+</html>

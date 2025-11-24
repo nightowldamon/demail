@@ -1,0 +1,15 @@
+# Logs
+logs
+*.log
+
+# Dependency directories
+
+# Images
+images/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Build directories
